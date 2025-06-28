@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LanzGPT</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%237158e2' d='M234.5 5.7c13.9-5 29.1-5 43.1 0l192 68.6C495 83.4 512 107.5 512 134.6l0 242.9c0 27-17 51.2-42.5 60.3l-192 68.6c-13.9 5-29.1 5-43.1 0l-192-68.6C17 428.6 0 404.5 0 377.4L0 134.6c0-27 17-51.2 42.5-60.3l192-68.6zM256 66L82.3 128 256 190l173.7-62L256 66zm32 368.6l160-57.1 0-188L288 246.6l0 188z'/%3E%3C/svg%3E">
+  <script defer src="script.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    crossorigin="anonymous" />
+
+</head>
+
+<body>
+  <!-- Loader -->
+  <div class="loader-overlay" id="loader">
+    <i class="fa-solid fa-cube cube-loader"></i>
+  </div>
+
+  <!-- Chat Interface -->
+  <div class="chat-container">
+    <div class="chat-header">
+      <div class="left d-flex align-items-center" style="gap: 8px;">
+        <i class="fa-solid fa-cube" id="headerCube"
+          style="font-size: 22px; background: linear-gradient(90deg, #ad9bff, #7158e2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent;"></i>
+        <span class="fw-bold" style="line-height: 1;">LanzGPT</span>
+      </div>
+      <div class="right">
+        <i class="fas fa-circle-info" id="settingsToggle" data-bs-toggle="modal" data-bs-target="#settingsModal"></i>
+      </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header" style="background-color: #7158e2;">
+            <h5 class="modal-title" id="settingsModalLabel" style="color:#ffffff;">About</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"
+              style="box-shadow: none !important; outline: none !important; background-color: transparent !important;"></button>
+          </div>
+          <div class="modal-body">
+            <p style="text-align: justify;">
+              This project is a text-based AI chatbot powered by the <strong>Groq API</strong>. It's built for fast,
+              free,
+              and responsive interaction using open model access.
+            </p>
+            <p style="text-align: justify;">
+              I'm currently exploring AI APIs to integrate intelligent features into my future development projects.
+            </p>
+            <hr>
+            <small class="d-block text-center text-muted mt-3">
+              Developed by
+              <a href="https://your-portfolio-link.com" target="_blank"
+                style="color: #7158e2; text-decoration: none; border-bottom: 1px solid #7158e2;">
+                Lanz Andrei
+              </a>
+              &nbsp;|&nbsp; All rights reserved 2025.
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-body msger-chat">
+      <!-- Messages will be added here -->
+    </div>
+
+    <form class="chat-footer msger-inputarea">
+      <input type="text" class="msger-input" placeholder="Type a message..." />
+      <button type="submit" id="sendBtn" style="background-color: #7158e2;"><i class="fas fa-paper-plane"></i></button>
+    </form>
+  </div>
+
+  <!-- Palette Button and Color Options -->
+  <div class="palette-btn" id="paletteBtn" title="Change theme color">
+    <i class="fa-solid fa-palette"></i>
+  </div>
+  <div class="palette-colors" id="paletteColors">
+    <div class="palette-color" style="background: #43d97f;" data-color="#43d97f" title="Green"></div>
+    <div class="palette-color" style="background: #3b82f6;" data-color="#3b82f6" title="Blue"></div>
+    <div class="palette-color" style="background: #f59e42;" data-color="#f59e42" title="Orange"></div>
+    <div class="palette-color" style="background: #e24c4b;" data-color="#e24c4b" title="Red"></div>
+    <div class="palette-color" style="background: #7158e2;" data-color="#7158e2" title="Purple"></div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // Loader hide on page load with delay for balanced feel
+    window.addEventListener('load', function () {
+      setTimeout(() => {
+        const loader = document.getElementById('loader');
+        loader.style.opacity = '0';
+        setTimeout(() => loader.style.display = 'none', 300);
+      }, 350);
+    });
+
+    // Settings modal toggle (existing)
+    const settingsToggle = document.getElementById('settingsToggle');
+    const settingsMenu = document.getElementById('settingsMenu');
+
+    if (settingsToggle && settingsMenu) {
+      settingsToggle.addEventListener('click', () => {
+        settingsMenu.classList.toggle('show');
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!settingsToggle.contains(e.target) && !settingsMenu.contains(e.target)) {
+          settingsMenu.classList.remove('show');
+        }
+      });
+    }
+
+    // Palette button logic
+    const paletteBtn = document.getElementById('paletteBtn');
+    const paletteColors = document.getElementById('paletteColors');
+    const root = document.documentElement;
+    const sendBtn = document.getElementById('sendBtn');
+    const headerCube = document.getElementById('headerCube');
+
+    paletteBtn.addEventListener('click', (e) => {
+      paletteColors.classList.toggle('show');
+      e.stopPropagation();
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!paletteBtn.contains(e.target) && !paletteColors.contains(e.target)) {
+        paletteColors.classList.remove('show');
+      }
+    });
+
+    // 🎨 Apply dynamic theme color when a palette is clicked
+    document.querySelectorAll('.palette-color').forEach(color => {
+      color.addEventListener('click', () => {
+        const selectedColor = color.getAttribute('data-color');
+        const lightColor = lightenColor(selectedColor, 40);
+
+        // Update CSS variables
+        root.style.setProperty('--theme-color', selectedColor);
+        root.style.setProperty('--theme-color-light', lightColor);
+
+        // Update send button background
+        if (sendBtn) {
+          sendBtn.style.backgroundColor = selectedColor;
+          sendBtn.style.transition = 'background-color 0.3s ease';
+        }
+
+        // Update header cube icon gradient
+        if (headerCube) {
+          headerCube.style.background = `linear-gradient(90deg, ${lightColor}, ${selectedColor})`;
+          headerCube.style.webkitBackgroundClip = 'text';
+          headerCube.style.webkitTextFillColor = 'transparent';
+          headerCube.style.backgroundClip = 'text';
+          headerCube.style.color = 'transparent';
+          headerCube.style.transition = 'background 0.3s ease';
+        }
+
+        // Body transition
+        document.body.style.transition = 'background 0.5s ease, color 0.5s ease';
+      });
+    });
+
+    // 🔧 Lighten hex color function
+    function lightenColor(hex, percent) {
+      const num = parseInt(hex.replace("#", ""), 16);
+      const r = (num >> 16) & 255;
+      const g = (num >> 8) & 255;
+      const b = num & 255;
+
+      const brightness = (r * 299 + g * 587 + b * 114) / 1000; // perceived brightness
+
+      // If color is already bright, use a smaller lighten %
+      const adjustPercent = brightness > 180 ? 15 : percent;
+
+      const newR = Math.min(255, Math.floor(r + (255 - r) * adjustPercent / 100));
+      const newG = Math.min(255, Math.floor(g + (255 - g) * adjustPercent / 100));
+      const newB = Math.min(255, Math.floor(b + (255 - b) * adjustPercent / 100));
+
+      return `rgb(${newR}, ${newG}, ${newB})`;
+    }
+  </script>
+
+</body>
+
+</html>
