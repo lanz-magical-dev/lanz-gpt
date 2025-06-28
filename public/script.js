@@ -1,33 +1,40 @@
+// get chat elements
 const msgerForm = document.querySelector(".msger-inputarea");
 const msgerInput = document.querySelector(".msger-input");
 const msgerChat = document.querySelector(".msger-chat");
 
+// bot/user config
 const BOT_NAME = "LanzGPT";
 const PERSON_NAME = "You";
 const BOT_IMG = "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/robot.svg";
 const PERSON_IMG = "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/person.svg";
 
-// initial centered intro text
+// show intro message at start
 msgerChat.innerHTML = `
   <div class="intro-message">Where shall we begin?</div>
 `;
 
+// handle form submit
 msgerForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const msgText = msgerInput.value.trim();
 
+  // if input is empty, shake input briefly
   if (!msgText) {
     msgerInput.classList.add("input-error");
     setTimeout(() => msgerInput.classList.remove("input-error"), 500);
     return;
   }
 
+  // show user message
   appendMessage(PERSON_NAME, PERSON_IMG, "right", msgText);
   msgerInput.value = "";
 
+  // show typing indicator
   const typingBubble = appendTypingIndicator();
 
   try {
+    // send message to backend
     const res = await fetch("/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -36,11 +43,14 @@ msgerForm.addEventListener("submit", async (e) => {
 
     const data = await res.json();
     typingBubble.remove();
+
+    // show bot reply
     appendMessage(BOT_NAME, BOT_IMG, "left", data.reply);
   } catch (err) {
     console.error(err);
     typingBubble.remove();
 
+    // check if error is quota related
     const isQuotaError =
       err.message?.includes("quota") ||
       err.message?.includes("limit") ||
@@ -48,6 +58,7 @@ msgerForm.addEventListener("submit", async (e) => {
       err.toString().toLowerCase().includes("quota");
 
     if (isQuotaError) {
+      // build human-friendly retry message
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
       const options = { weekday: "long", month: "long", day: "numeric" };
@@ -60,6 +71,7 @@ msgerForm.addEventListener("submit", async (e) => {
   }
 });
 
+// creates loading dots bubble
 function appendTypingIndicator() {
   const typingHTML = `
     <div class="msg left-msg typing fade-up">
@@ -80,6 +92,7 @@ function appendTypingIndicator() {
   return msgerChat.lastElementChild;
 }
 
+// creates a message bubble
 function appendMessage(name, img, side, text) {
   const intro = document.querySelector(".intro-message");
   if (intro) intro.classList.add("fade-out");
@@ -106,12 +119,12 @@ function appendMessage(name, img, side, text) {
   msgerChat.scrollTop = msgerChat.scrollHeight;
 }
 
-// converts markdown-like text into bold headers, ul lists, and paragraphs
+// parses markdown-like text into html
 function parseMarkdown(text) {
-  // step 1: convert headings with colon (e.g., "Early Life and Career:") to <strong>
+  // bold headings like "Text:" or "Awards:" (remove colon too)
   text = text.replace(/^([^\n:]+):/gm, (_, heading) => `<strong>${heading.trim()}</strong>`);
 
-  // step 2: convert "* bullet" to <ul><li>
+  // convert * bullet lines to <ul><li>
   const lines = text.split("\n");
   let inList = false;
   for (let i = 0; i < lines.length; i++) {
@@ -133,11 +146,12 @@ function parseMarkdown(text) {
   if (inList) lines[lines.length - 1] += "</ul>";
   text = lines.join("\n");
 
-  // step 3: convert newlines into paragraphs
+  // wrap text blocks into <p> tags
   const paragraphs = text.split(/\n\s*\n/).map(p => `<p>${p.replace(/\n/g, "<br>")}</p>`);
   return paragraphs.join("");
 }
 
+// formats time as HH:MM
 function formatDate(date) {
   const h = "0" + date.getHours();
   const m = "0" + date.getMinutes();

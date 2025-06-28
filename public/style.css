@@ -224,6 +224,9 @@ body {
   background-color: #fff;
   display: flex;
   gap: 10px;
+  align-items: center;
+  min-height: 60px;
+  box-sizing: border-box;
 }
 
 .chat-footer input {
@@ -232,7 +235,7 @@ body {
   border: 1px solid var(--theme-color-light);
   border-radius: 50px;
   outline: none;
-  transition: border 0.3s ease, opacity 0.3s ease;
+  transition: border 0.3s ease;
 }
 
 .chat-footer button {
@@ -248,30 +251,16 @@ body {
 }
 
 .input-error {
-  border: 2px solid #ff4d4d !important;
   animation: shake 0.3s;
+  border-color: #ff4d4d !important;
 }
 
 @keyframes shake {
-  0% {
-    transform: translateX(0);
-  }
-
-  25% {
-    transform: translateX(-5px);
-  }
-
-  50% {
-    transform: translateX(5px);
-  }
-
-  75% {
-    transform: translateX(-5px);
-  }
-
-  100% {
-    transform: translateX(0);
-  }
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
 }
 
 .fade-up {
@@ -314,17 +303,9 @@ body {
 }
 
 @keyframes blink {
-  0% {
-    opacity: 0.2;
-  }
-
-  20% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 0.2;
-  }
+  0% { opacity: 0.2; }
+  20% { opacity: 1; }
+  100% { opacity: 0.2; }
 }
 
 .modal-backdrop.show {
@@ -332,15 +313,8 @@ body {
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .loader-overlay {
@@ -365,17 +339,9 @@ body {
 }
 
 @keyframes scalePulse {
-  0% {
-    transform: scale(0.85);
-  }
-
-  50% {
-    transform: scale(1.15);
-  }
-
-  100% {
-    transform: scale(0.85);
-  }
+  0% { transform: scale(0.85); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(0.85); }
 }
 
 .btn-close:focus {
